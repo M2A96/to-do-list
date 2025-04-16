@@ -1,4 +1,4 @@
-package com.example.snapfood.presentation.ui.search
+package com.example.snapfood.presentation.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,6 @@ import com.example.snapfood.domain.model.Resources
 import com.example.snapfood.domain.usecase.GetAllCharactersUseCase
 import com.example.snapfood.domain.usecase.SearchCharactersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch

@@ -1,4 +1,4 @@
-package com.example.snapfood.presentation.ui.search
+package com.example.snapfood.presentation.ui.home
 
 import com.example.snapfood.domain.model.StarWarsCharacter
 

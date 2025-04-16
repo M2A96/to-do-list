@@ -14,4 +14,7 @@ object Consts {
     const val PREFERENCE_KEY = "sort_state"
 
     const val MAX_TITLE_LENGTH = 20
+    const val DOING = "DOING"
+    const val DONE = "DONE"
+    const val UNDONE = "UNDONE"
 }

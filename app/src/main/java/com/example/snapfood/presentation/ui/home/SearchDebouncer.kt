@@ -1,13 +1,9 @@
-package com.example.snapfood.presentation.ui.search
+package com.example.snapfood.presentation.ui.home
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SearchDebouncer @Inject constructor() {

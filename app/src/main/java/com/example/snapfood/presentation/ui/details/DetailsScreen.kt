@@ -22,7 +22,7 @@ import com.example.snapfood.R
 import com.example.snapfood.domain.model.FilmInfo
 import com.example.snapfood.domain.model.SpeciesInfo
 import com.example.snapfood.domain.model.StarWarsCharacter
-import com.example.snapfood.presentation.theme.SnapFoodTheme
+import com.example.snapfood.presentation.theme.TodoListTheme
 import com.example.snapfood.presentation.ui.common.CommonCard
 import com.example.snapfood.presentation.ui.common.CommonSpacing
 
@@ -437,7 +437,7 @@ private fun SpeciesDetailItem(label: String, value: String) {
 @Preview(showBackground = true)
 @Composable
 fun DetailHeaderPreview() {
-    SnapFoodTheme {
+    TodoListTheme {
         DetailHeader(
             characterName = "Luke Skywalker",
             onBackClick = {}
@@ -470,7 +470,7 @@ fun EmptyStateCard(
 @Preview(showBackground = true)
 @Composable
 fun InfoItemCardPreview() {
-    SnapFoodTheme {
+    TodoListTheme {
         InfoItemCard(
             Pair("Birth Year", "19 BBY")
         )
@@ -480,7 +480,7 @@ fun InfoItemCardPreview() {
 @Preview(showBackground = true)
 @Composable
 fun FilmCardPreview() {
-    SnapFoodTheme {
+    TodoListTheme {
         FilmCard(
             filmId = "1",
             filmInfo = FilmInfo(
@@ -497,7 +497,7 @@ fun FilmCardPreview() {
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
 fun DetailsScreenPreview() {
-    SnapFoodTheme {
+    TodoListTheme {
         DetailsScreen(
             state = DetailScreenState(
                 character = StarWarsCharacter(

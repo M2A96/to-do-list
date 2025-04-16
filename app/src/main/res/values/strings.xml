@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SnapFood</string>
+    <string name="app_name">To Do List</string>
     <string name="search_screen_title">Star Wars Characters</string>
     <string name="search_placeholder">Search characters…</string>
     <string name="basic_information">Basic Information</string>
@@ -13,4 +13,15 @@
     <string name="designation">Designation</string>
     <string name="average_lifespan">Average Lifespan</string>
     <string name="no_characters_found">No characters found</string>
+    <string name="add_task">Add Task</string>
+    <string name="search_tasks">Search Task</string>
+    <string name="no_tasks_found">No Task Found</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="add_new_task">Add New Task</string>
+    <string name="task_title">Task Title</string>
+    <string name="task_description">Task Description</string>
+    <string name="priority">Priority</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>
