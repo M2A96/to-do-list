@@ -21,3 +21,9 @@ val DarkOnSurface = Color(0xFFFFFFFF)
 val DarkOnBackground = Color(0xFF888888)
 val DarkSurfaceVariant = Color(0xFF1F1F1F)
 val DarkBorder = Color(0xFF333333)
+
+val MediumGray = Color(0xFF9C9C9C)
+val LowPriorityColor = Color(0XFF00C980)
+val MediumPriorityColor = Color(0xFFFFC114)
+val HighPriorityColor = Color(0xFFFF4646)
+val NonePriorityColor = MediumGray

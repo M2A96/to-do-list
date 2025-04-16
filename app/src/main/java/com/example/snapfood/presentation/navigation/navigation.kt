@@ -1,5 +1,6 @@
 package com.example.snapfood.presentation.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
@@ -13,8 +14,8 @@ import com.example.snapfood.presentation.ui.search.SearchScreen
 import com.example.snapfood.presentation.ui.search.SearchViewModel
 
 sealed class Screen(val route: String) {
-    object Search : Screen("search")
-    object Details : Screen("details/{characterId}") {
+    data object Search : Screen("search")
+    data object Details : Screen("details/{characterId}") {
         fun createRoute(characterId: String) = "details/$characterId"
     }
 }
@@ -34,7 +35,7 @@ fun NavGraphBuilder.starWarsNavGraph(navController: NavHostController) {
 
     composable(
         route = Screen.Details.route,
-    ) { backStackEntry ->
+    ) {
         val viewModel: DetailsViewModel = hiltViewModel()
         val state by viewModel.state.collectAsState()
         DetailsScreen(

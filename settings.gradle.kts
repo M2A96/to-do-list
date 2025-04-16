@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Star Wars"
+rootProject.name = "To Do List"
 include(":app")
  

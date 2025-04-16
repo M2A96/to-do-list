@@ -9,6 +9,5 @@ import kotlinx.coroutines.flow.Flow
 class GetAllCharactersUseCase @Inject constructor(
     private val repository: AllCharactersRepository
 ) {
-    suspend operator fun invoke(): Flow<Resources<List<StarWarsCharacter>>> =
-        repository.getAllCharacters()
+    suspend operator fun invoke() = repository.getAllCharacters()
 }

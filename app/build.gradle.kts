@@ -86,4 +86,7 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.collection.ktx)
     implementation(libs.androidx.animation)
+    //ROOM
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 }
