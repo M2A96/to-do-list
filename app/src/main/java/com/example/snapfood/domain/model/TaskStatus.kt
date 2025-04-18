@@ -2,7 +2,7 @@ package com.example.snapfood.domain.model
 
 enum class TaskStatus(val status:String){
     NONE("none"),
-    DOING("doinf"),
+    DOING("doing"),
     DONE("done"),
     UNDONE("undone"),
 }

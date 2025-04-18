@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.snapfood"
+    namespace = "io.github.todolist"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.snapfood"
+        applicationId = "io.github.todolist"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

@@ -1,9 +1,10 @@
-package com.example.todolist.presentation.ui.home
+package com.example.snapfood.presentation.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,16 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.snapfood.R
 import com.example.snapfood.domain.model.Priority
 import com.example.snapfood.domain.model.TaskStatus
 import com.example.snapfood.domain.model.ToDoTask
 import com.example.snapfood.presentation.theme.TodoListTheme
 import com.example.snapfood.presentation.ui.common.CommonCard
-import com.example.snapfood.presentation.ui.home.HomeScreenEvent
-import com.example.snapfood.presentation.ui.home.SyncStatus
-import com.example.snapfood.presentation.ui.home.SyncStatusIndicator
-import com.example.snapfood.presentation.ui.home.TaskScreenState
+import io.github.todolist.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -87,6 +84,12 @@ fun HomeScreen(
                 onQueryChange = { onEvent(HomeScreenEvent.OnSearchQueryChange(it)) }
             )
 
+            // Status filter chips
+            StatusFilter(
+                selectedFilter = state.statusFilter,
+                onFilterSelected = { onEvent(HomeScreenEvent.OnStatusFilterChange(it)) }
+            )
+
             if (state.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -95,11 +98,17 @@ fun HomeScreen(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
-                if (state.tasks.isEmpty()) {
+                val filteredTasks = if (state.statusFilter == null) {
+                    state.tasks
+                } else {
+                    state.tasks.filter { it.status == state.statusFilter }
+                }
+
+                if (filteredTasks.isEmpty()) {
                     EmptyTasksMessage()
                 } else {
                     TasksList(
-                        tasks = state.tasks,
+                        tasks = filteredTasks,
                         onTaskClick = { onEvent(HomeScreenEvent.OnTaskClick(it)) },
                         onEditTask = {
                             currentEditTask = it
@@ -130,6 +139,60 @@ fun HomeScreen(
                 showTaskSheet = false
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatusFilter(
+    selectedFilter: TaskStatus?,
+    onFilterSelected: (TaskStatus?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(R.string.filter_by_status),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = 4.dp)
+            ) {
+                // Add "All" filter option
+                item {
+                    FilterChip(
+                        selected = selectedFilter == null,
+                        onClick = { onFilterSelected(null) },
+                        label = { Text("All") },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            selectedLabelColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+
+                // Add filter chip for each status
+                items(TaskStatus.entries.filter { it != TaskStatus.NONE }) { status ->
+                    FilterChip(
+                        selected = selectedFilter == status,
+                        onClick = { onFilterSelected(status) },
+                        label = { Text(status.name) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = TaskCardDefaults.getStatusColor(status).copy(alpha = 0.2f),
+                            selectedLabelColor = TaskCardDefaults.getStatusColor(status)
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -520,6 +583,17 @@ fun TaskBottomSheet(
 
 @Preview(showBackground = true)
 @Composable
+fun StatusFilterPreview() {
+    TodoListTheme {
+        StatusFilter(
+            selectedFilter = TaskStatus.DOING,
+            onFilterSelected = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 fun HomeHeaderPreview() {
     TodoListTheme {
         HomeHeader()
@@ -589,7 +663,8 @@ fun HomeScreenPreview() {
                         status = TaskStatus.DONE,
                         priority = Priority.LOW
                     )
-                )
+                ),
+                statusFilter = TaskStatus.DOING
             ),
             onEvent = {}
         )

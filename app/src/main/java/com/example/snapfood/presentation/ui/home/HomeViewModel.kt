@@ -118,6 +118,18 @@ class HomeViewModel @Inject constructor(
             is HomeScreenEvent.OnEditTaskClick -> editTask(event.editedTask)
             is HomeScreenEvent.OnTaskClick -> onTaskClick(event.task)
             is HomeScreenEvent.OnTaskStatusChange -> changeTaskStatus(event.status)
+            is HomeScreenEvent.OnStatusFilterChange -> updateStatusFilter(event.status)
+        }
+    }
+
+    private fun updateStatusFilter(status: TaskStatus?) {
+        _state.update { it.copy(statusFilter = status) }
+
+        // Reload tasks with the new filter
+        if (_state.value.searchQuery.isBlank()) {
+            loadInitialTasks()
+        } else {
+            searchDebouncer.setQuery(_state.value.searchQuery) // This will trigger search with filter
         }
     }
 
@@ -190,14 +202,21 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun performSearch(query: String) {
-        getAllTasksUseCase().
-            onStart { setLoading(true) }.
-            catch { error ->
-                handleError(error)
-            }.
-            collect { result ->
-                val filteredList = result.data?.filter { it.title.contains(query) }
-               handleSearchResult(Resources.Success(filteredList))
+        getAllTasksUseCase()
+            .onStart { setLoading(true) }
+            .catch { error -> handleError(error) }
+            .collect { result ->
+                val filteredBySearch =
+                    result.data?.filter { it.title.contains(query, ignoreCase = true) }
+
+                // Apply status filter on top of search results if needed
+                val filteredList = if (_state.value.statusFilter != null) {
+                    filteredBySearch?.filter { it.status == _state.value.statusFilter }
+                } else {
+                    filteredBySearch
+                }
+
+                handleSearchResult(Resources.Success(filteredList))
             }
     }
 
@@ -225,7 +244,21 @@ class HomeViewModel @Inject constructor(
 
     private fun handleSearchResult(result: Resources<List<ToDoTask>>) {
         when (result) {
-            is Resources.Success -> updateCharactersList(result.data)
+            is Resources.Success -> {
+                // Apply status filter if one is set
+                val filteredTasks = if (_state.value.statusFilter != null) {
+                    result.data?.filter { it.status == _state.value.statusFilter } ?: emptyList()
+                } else {
+                    result.data?.map { it } ?: emptyList()
+                }
+
+                _state.update { currentState ->
+                    currentState.copy(
+                        tasks = filteredTasks,
+                        isLoading = false
+                    )
+                }
+            }
             is Resources.Error -> handleSearchError()
             is Resources.Loading -> setLoading(result.isLoading)
         }

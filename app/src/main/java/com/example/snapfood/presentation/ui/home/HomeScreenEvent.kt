@@ -11,4 +11,5 @@ sealed class HomeScreenEvent {
     data class OnDeleteTaskClick (val task: ToDoTask): HomeScreenEvent()
     data class OnTaskStatusChange(val id: Int, val status: TaskStatus) : HomeScreenEvent()
     data object LoadTasks : HomeScreenEvent()
+    data class OnStatusFilterChange(val status: TaskStatus?) : HomeScreenEvent()
 }
