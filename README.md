@@ -1,6 +1,6 @@
-# Star Wars Character Explorer App
+# ToDo List App with Jetpack Compose
 
-A modern Android application built with Jetpack Compose that allows users to explore Star Wars characters, their details, films, and species information using the SWAPI (Star Wars API).
+A modern Android application built with Jetpack Compose that allows users to create, manage, and organize their tasks with a clean and intuitive interface.
 
 ## Architecture Overview
 
@@ -24,15 +24,15 @@ This application follows Clean Architecture principles combined with MVI (Model-
    - Implements repository interfaces
    - Handles data operations and transformations
    - Contains API service definitions
-   - Manages local storage (if applicable)
+   - Manages local storage with Room database
 
 ### MVI Implementation
 
 The application follows Model-View-Intent pattern with the following components:
 
-- **Model**: Represented by State classes (e.g., `SearchScreenState`, `DetailScreenState`)
+- **Model**: Represented by State classes (e.g., `TaskScreenState`)
 - **View**: Compose screens that render UI based on states
-- **Intent**: User actions represented by Event classes (e.g., `SearchScreenEvent`, `DetailScreenEvent`)
+- **Intent**: User actions represented by Event classes (e.g., `HomeScreenEvent`)
 
 #### State Management
 - States are immutable data classes
@@ -41,10 +41,12 @@ The application follows Model-View-Intent pattern with the following components:
 
 ## Key Features
 
-- Search Star Wars characters
-- View detailed character information
-- Browse character appearances in films
-- Explore species information
+- Create and manage todo tasks
+- Set task priorities
+- Mark tasks as completed
+- Search and filter tasks
+- Sync tasks with remote server
+- Offline support with local database
 - Dark/Light theme support
 - Material Design 3 implementation
 
@@ -56,6 +58,7 @@ The application follows Model-View-Intent pattern with the following components:
 - **Coroutines & Flow** - Asynchronous programming
 - **Hilt** - Dependency injection
 - **Retrofit** - Network calls
+- **Room** - Local database storage
 - **Gson** - JSON parsing
 - **Navigation Compose** - In-app navigation
 
@@ -67,68 +70,68 @@ The application follows Model-View-Intent pattern with the following components:
 ### Networking
 - **OkHttp** - HTTP client
 - **Retrofit** - REST client
-- **Stetho** - Network inspection (Debug builds)
-
-### Dependencies
-
-```gradle
-[versions]
-agp = "8.4.0"
-animation = "1.7.6"
-collectionKtx = "1.4.5"
-converterGson = "2.9.0"
-gson = "2.10.1"
-hiltAndroid = "2.54"
-kotlin = "1.9.21"
-coreKtx = "1.15.0"
-lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.9.3"
-composeBom = "2023.08.00"
-navigation-compose = "2.7.7"
-```
 
 ## Project Structure
 
 ```
-com.example.snapfood/
+io.github.todolist/
 ├── core/
 │   └── di/
 │       ├── module/
 │       │   ├── AppModule
+│       │   ├── DatabaseModule
 │       │   ├── NetworkModule
 │       │   └── RepositoryModule
 │       └── qualifier/
 ├── data/
 │   ├── api/
-│   │   └── StarWarsApi
+│   │   ├── MockTaskApiService
+│   │   └── TasksApi
+│   ├── dao/
+│   │   └── ToDoDao
 │   ├── dto/
+│   ├── local/
+│   │   └── database/
+│   │       └── ToDoDatabase
 │   ├── mapper/
 │   └── repository/
+│       ├── AllToDoTasksRepositoryImpl
+│       └── TaskRepositoryImpl
 ├── domain/
 │   ├── model/
+│   │   ├── Priority
+│   │   ├── Resource
+│   │   ├── TaskStatus
+│   │   └── ToDoTask
 │   ├── repository/
+│   │   ├── AllTasksRepository
+│   │   └── TaskRepository
 │   └── usecase/
+│       ├── AddTaskUseCase
+│       ├── EditTaskUseCase
+│       ├── GetAllTasksUseCase
+│       ├── RemoveTaskUseCase
+│       └── SyncTasksUseCase
 └── presentation/
     ├── navigation/
     ├── theme/
     └── ui/
         ├── common/
-        ├── details/
-        └── search/
+        └── home/
+            ├── HomeScreen
+            ├── HomeViewModel
+            ├── SearchDebouncer
+            └── TaskScreenState
 ```
 
 ## UI Components
 
-### Search Screen
-- Search box with real-time filtering
-- Character list with basic information
-- Smooth navigation to details screen
-
-### Details Screen
-- Character basic information
-- Films appearances with opening crawl
-- Species information
-- Loading states and error handling
+### Home Screen
+- Task list with priority indicators
+- Add/Edit task functionality
+- Search box with debounced filtering
+- Task completion status toggle
+- Sync status indicator
 
 ## Theme
 
@@ -141,20 +144,26 @@ The app implements a dynamic Material Design 3 theme with:
 ## Network Layer
 
 ### API Configuration
-- Base URL: https://swapi.dev/api/
-- Token-based authentication support
-- Custom header management
-- Debug logging and Stetho integration
+- Mock API service for development
+- Real API integration for production
+- Support for task synchronization
 
 ### Error Handling
 - Generic error handling through Resource wrapper
 - Loading states management
 - Error states with user-friendly messages
 
+## Local Storage
+
+- Room Database for persistent storage
+- DAO pattern for database access
+- Entity mapping between domain and data layers
+
 ## Dependency Injection
 
 Hilt is used for dependency injection with the following modules:
 - `AppModule`: Application-wide dependencies
+- `DatabaseModule`: Database-related dependencies
 - `NetworkModule`: Network-related dependencies
 - `RepositoryModule`: Repository implementations
 
@@ -184,7 +193,7 @@ Hilt is used for dependency injection with the following modules:
 
 3. **Data Flow**
    - Use cases interact with repositories
-   - Repositories fetch from API
+   - Repositories fetch from API or local database
    - Data is mapped to domain models
 
 4. **UI Updates**
