@@ -90,7 +90,19 @@ dependencies {
     implementation(libs.androidx.animation)
     //ROOM
 
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1") // KSP, not kapt
+    implementation(libs.androidx.room.runtime.v261)
+    implementation(libs.androidx.room.ktx.v261)
+    ksp(libs.androidx.room.compiler.v261)
+    // JUnit
+    testImplementation ("junit:junit:4.13.2")
+
+// Coroutines Test
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+// Mockito + Kotlin extensions
+    testImplementation ("org.mockito:mockito-core:5.8.0")
+    testImplementation ("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
+// Truth or AssertJ (optional, for cleaner assertions)
+    testImplementation ("com.google.truth:truth:1.1.5")
 }

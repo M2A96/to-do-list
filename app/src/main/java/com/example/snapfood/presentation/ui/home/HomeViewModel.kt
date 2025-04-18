@@ -39,7 +39,7 @@ class HomeViewModel @Inject constructor(
         syncTasks()
     }
 
-    private fun syncTasks() {
+    fun syncTasks() {
         viewModelScope.launch {
             try {
                 // Clear previous errors and set status to SYNCING

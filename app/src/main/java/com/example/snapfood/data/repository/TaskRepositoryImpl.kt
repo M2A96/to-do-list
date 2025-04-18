@@ -110,8 +110,6 @@ class TaskRepositoryImpl @Inject constructor(
                 mapper.toDto(mapper.toDomain(it))
             }
 
-            // Replace all tasks in DB with remote data
-            dao.deleteAllTasks()
             dao.addTask(taskEntities)
 
             emit(Resources.Success(Unit))

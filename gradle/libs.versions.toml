@@ -18,7 +18,10 @@ hilt = "2.54"
 hiltNavigationCompose = "1.0.0"
 loggingInterceptor = "4.12.0"
 retrofit = "2.11.0"
+roomCompiler = "2.6.1"
+roomKtx = "2.6.1"
 roomRuntime = "2.7.0"
+roomRuntimeVersion = "2.6.1"
 stetho = "1.5.1"
 stethoOkhttp3 = "1.5.1"
 roomExternalAntlr = "2.7.0"
@@ -28,8 +31,11 @@ androidx-animation = { module = "androidx.compose.animation:animation", version.
 androidx-collection-ktx = { module = "androidx.collection:collection-ktx", version.ref = "collectionKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-compiler-v261 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-ktx-v261 = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-room-runtime-v261 = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
