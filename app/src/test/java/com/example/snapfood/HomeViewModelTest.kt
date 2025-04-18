@@ -22,11 +22,11 @@ class HomeViewModelTest {
 
     private lateinit var viewModel: HomeViewModel
 
-    private val addTaskUseCase: AddTaskUseCase = mock()
+    private val addTaskUseCase: com.github.todolist.domain.usecase.AddTaskUseCase = mock()
     private val editTaskUseCase: EditTaskUseCase = mock()
     private val removeTaskUseCase: RemoveTaskUseCase = mock()
     private val getAllTasksUseCase: GetAllTasksUseCase = mock()
-    private val syncTasksUseCase: SyncTasksUseCase = mock()
+    private val syncTasksUseCase: com.github.todolist.domain.usecase.SyncTasksUseCase = mock()
     private val searchDebouncer: SearchDebouncer = mock()
 
     @Before
