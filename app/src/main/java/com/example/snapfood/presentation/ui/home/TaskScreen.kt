@@ -4,7 +4,6 @@ package com.example.snapfood.presentation.ui.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,9 +31,6 @@ import com.example.snapfood.domain.model.TaskStatus
 import com.example.snapfood.domain.model.ToDoTask
 import com.example.snapfood.presentation.theme.TodoListTheme
 import com.example.snapfood.presentation.ui.common.CommonCard
-import com.example.snapfood.util.Consts.DOING
-import com.example.snapfood.util.Consts.DONE
-import com.example.snapfood.util.Consts.UNDONE
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -42,13 +38,13 @@ import java.time.format.DateTimeFormatter
 fun TaskScreen(
     state: TaskScreenState,
     modifier: Modifier = Modifier,
-    onEvent: (TaskScreenEvent) -> Unit
+    onEvent: (HomeScreenEvent) -> Unit
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onEvent(TaskScreenEvent.OnAddTaskClick(ToDoTask())) },
+                onClick = { onEvent(HomeScreenEvent.OnAddTaskClick(ToDoTask())) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -67,7 +63,7 @@ fun TaskScreen(
             TaskHeader()
             SearchBox(
                 query = state.searchQuery,
-                onQueryChange = { onEvent(TaskScreenEvent.OnSearchQueryChange(it)) }
+                onQueryChange = { onEvent(HomeScreenEvent.OnSearchQueryChange(it)) }
             )
 
             if (state.isLoading) {
@@ -83,11 +79,11 @@ fun TaskScreen(
                 } else {
                     TasksList(
                         tasks = state.tasks,
-                        onTaskClick = { onEvent(TaskScreenEvent.OnTaskClick(it)) },
-                        onEditTask = { onEvent(TaskScreenEvent.OnEditTaskClick(it)) },
-                        onDeleteTask = { onEvent(TaskScreenEvent.OnDeleteTaskClick(it)) },
+                        onTaskClick = { onEvent(HomeScreenEvent.OnTaskClick(it)) },
+                        onEditTask = { onEvent(HomeScreenEvent.OnEditTaskClick(state.currentTask)) },
+                        onDeleteTask = { onEvent(HomeScreenEvent.OnDeleteTaskClick(it)) },
                         onTaskStatusChange = { id, status ->
-                            onEvent(TaskScreenEvent.OnTaskStatusChange(id, status))
+                            onEvent(HomeScreenEvent.OnTaskStatusChange(id, status))
                         }
                     )
                 }
@@ -172,9 +168,9 @@ fun EmptyTasksMessage(
 @Composable
 fun TasksList(
     tasks: List<ToDoTask>,
-    onTaskClick: (Int) -> Unit,
-    onEditTask: (Int) -> Unit,
-    onDeleteTask: (Int) -> Unit,
+    onTaskClick: (ToDoTask) -> Unit,
+    onEditTask: (ToDoTask) -> Unit,
+    onDeleteTask: (ToDoTask) -> Unit,
     onTaskStatusChange: (Int, TaskStatus) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -191,9 +187,9 @@ fun TasksList(
         ) { task ->
             TaskCard(
                 task = task,
-                onClick = { onTaskClick(task.id) },
-                onEditClick = { onEditTask(task.id) },
-                onDeleteClick = { onDeleteTask(task.id) },
+                onClick = { onTaskClick(task) },
+                onEditClick = { onEditTask(task) },
+                onDeleteClick = { onDeleteTask(task) },
                 onStatusChange = { status -> onTaskStatusChange(task.id, status) }
             )
         }
@@ -225,7 +221,6 @@ object TaskCardDefaults {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskCard(

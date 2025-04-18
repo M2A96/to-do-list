@@ -6,7 +6,8 @@ import com.example.snapfood.domain.model.ToDoTask
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
-    suspend fun addTask(task: ToDoTaskDto): Flow<Resources<Int>>
-    suspend fun removeTask(taskId: Int): Flow<Resources<Int>>
-    suspend fun editTask(task: ToDoTaskDto): Flow<Resources<Int>>
+    suspend fun addTask(task: ToDoTask): Flow<Resources<Int>>
+    suspend fun removeTask(task: ToDoTask): Flow<Resources<Int>>
+    suspend fun editTask(task: ToDoTask): Flow<Resources<Int>>
+    fun syncTasks(): Flow<Resources<Unit>>
 }

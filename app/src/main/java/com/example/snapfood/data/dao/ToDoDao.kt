@@ -13,19 +13,22 @@ import kotlinx.coroutines.flow.Flow
 interface ToDoDao {
 
     @Query("SELECT * FROM todo_table ORDER BY id ASC")
-    fun getAllTasks(): List<ToDoTaskDto>
+    fun getAllTasks(): Flow<List<ToDoTaskDto>>
 
     @Query("SELECT * FROM todo_table WHERE id=:taskId")
     fun getSelectedTask(taskId: Int): Flow<ToDoTaskDto>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addTask(task: ToDoTaskDto) : Int
+    suspend fun addTask(task: ToDoTaskDto)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addTask(task: List<ToDoTaskDto>)
 
     @Update
     suspend fun updateTask(task: ToDoTaskDto) : Int
 
     @Delete
-    suspend fun deleteTask(taskId: Int ): Int
+    suspend fun deleteTask(toDoTaskDto: ToDoTaskDto)
 
     @Query("DELETE FROM todo_table")
     suspend fun deleteAllTasks()

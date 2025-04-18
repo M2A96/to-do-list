@@ -9,5 +9,7 @@ data class ToDoTaskDto (
     val id: Int = 0,
     val title: String,
     val description: String,
-    val priority: PriorityDto
+    val priority: PriorityDto,
+    val createdAt: Long,
+    val updatedAt: Long,
 )

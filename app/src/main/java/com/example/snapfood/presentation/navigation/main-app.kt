@@ -12,7 +12,7 @@ fun StarWarsApp() {
         
         NavHost(
             navController = navController,
-            startDestination = Screen.Search.route
+            startDestination = Screen.Home.route
         ) {
             starWarsNavGraph(navController)
         }

@@ -1,8 +1,6 @@
 package com.example.todolist.presentation.ui.home
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,27 +28,34 @@ import com.example.snapfood.domain.model.TaskStatus
 import com.example.snapfood.domain.model.ToDoTask
 import com.example.snapfood.presentation.theme.TodoListTheme
 import com.example.snapfood.presentation.ui.common.CommonCard
-import com.example.snapfood.presentation.ui.home.TaskScreenEvent
+import com.example.snapfood.presentation.ui.home.HomeScreenEvent
+import com.example.snapfood.presentation.ui.home.SyncStatus
+import com.example.snapfood.presentation.ui.home.SyncStatusIndicator
 import com.example.snapfood.presentation.ui.home.TaskScreenState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: TaskScreenState,
     modifier: Modifier = Modifier,
-    onEvent: (TaskScreenEvent) -> Unit
+    onEvent: (HomeScreenEvent) -> Unit
 ) {
+
     // State for controlling bottom sheet visibility
-    var showAddTaskSheet by remember { mutableStateOf(false) }
+    var showTaskSheet by remember { mutableStateOf(false) }
+
+    // State to store current task being edited (null if adding new task)
+    var currentEditTask by remember { mutableStateOf<ToDoTask?>(null) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddTaskSheet = true },
+                onClick = {
+                    currentEditTask = null
+                    showTaskSheet = true
+                },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
@@ -67,9 +72,19 @@ fun HomeScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             HomeHeader()
+            // Sync status indicator
+            if (state.syncStatus != SyncStatus.NONE || state.errorMessage != null) {
+                SyncStatusIndicator(
+                    syncStatus = state.syncStatus,
+                    errorMessage = state.errorMessage,
+                    onDismiss = {
+                        // Clear error message if needed
+                    }
+                )
+            }
             SearchBox(
                 query = state.searchQuery,
-                onQueryChange = { onEvent(TaskScreenEvent.OnSearchQueryChange(it)) }
+                onQueryChange = { onEvent(HomeScreenEvent.OnSearchQueryChange(it)) }
             )
 
             if (state.isLoading) {
@@ -85,22 +100,35 @@ fun HomeScreen(
                 } else {
                     TasksList(
                         tasks = state.tasks,
-                        onTaskClick = { onEvent(TaskScreenEvent.OnTaskClick(it)) },
-                        onEditTask = { onEvent(TaskScreenEvent.OnEditTaskClick(it)) },
-                        onDeleteTask = { onEvent(TaskScreenEvent.OnDeleteTaskClick(it)) },
+                        onTaskClick = { onEvent(HomeScreenEvent.OnTaskClick(it)) },
+                        onEditTask = {
+                            currentEditTask = it
+                            showTaskSheet = true
+                        },
+                        onDeleteTask = { onEvent(HomeScreenEvent.OnDeleteTaskClick(it)) },
                         onTaskStatusChange = { id, status ->
-                            onEvent(TaskScreenEvent.OnTaskStatusChange(id, status))
+                            onEvent(HomeScreenEvent.OnTaskStatusChange(id, status))
                         }
                     )
                 }
             }
         }
 
-        // Add Task Bottom Sheet
-        AddTaskBottomSheet(
-            isVisible = showAddTaskSheet,
-            onDismiss = { showAddTaskSheet = false },
-            onSave = { task -> onEvent(TaskScreenEvent.OnAddTaskClick(task)) }
+        // Task Bottom Sheet (used for both add and edit)
+        TaskBottomSheet(
+            isVisible = showTaskSheet,
+            task = currentEditTask,
+            onDismiss = { showTaskSheet = false },
+            onSave = { task ->
+                if (currentEditTask != null) {
+                    // If editing an existing task
+                    onEvent(HomeScreenEvent.OnEditTaskClick(task))
+                } else {
+                    // If adding a new task
+                    onEvent(HomeScreenEvent.OnAddTaskClick(task))
+                }
+                showTaskSheet = false
+            }
         )
     }
 }
@@ -180,9 +208,9 @@ fun EmptyTasksMessage(
 @Composable
 fun TasksList(
     tasks: List<ToDoTask>,
-    onTaskClick: (Int) -> Unit,
-    onEditTask: (Int) -> Unit,
-    onDeleteTask: (Int) -> Unit,
+    onTaskClick: (ToDoTask) -> Unit,
+    onEditTask: (ToDoTask) -> Unit,
+    onDeleteTask: (ToDoTask) -> Unit,
     onTaskStatusChange: (Int, TaskStatus) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -199,9 +227,9 @@ fun TasksList(
         ) { task ->
             TaskCard(
                 task = task,
-                onClick = { onTaskClick(task.id) },
-                onEditClick = { onEditTask(task.id) },
-                onDeleteClick = { onDeleteTask(task.id) },
+                onClick = { onTaskClick(task) },
+                onEditClick = { onEditTask(task) },
+                onDeleteClick = { onDeleteTask(task) },
                 onStatusChange = { status -> onTaskStatusChange(task.id, status) }
             )
         }
@@ -280,7 +308,7 @@ fun TaskCard(
                     selected = false,
                     onClick = {
                         // Cycle through statuses
-                        val newStatus = when(task.status) {
+                        val newStatus = when (task.status) {
                             TaskStatus.UNDONE -> TaskStatus.DOING
                             TaskStatus.DOING -> TaskStatus.DONE
                             TaskStatus.DONE -> TaskStatus.UNDONE
@@ -295,7 +323,8 @@ fun TaskCard(
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        containerColor = TaskCardDefaults.getStatusColor(task.status).copy(alpha = 0.2f),
+                        containerColor = TaskCardDefaults.getStatusColor(task.status)
+                            .copy(alpha = 0.2f),
                         labelColor = TaskCardDefaults.getStatusColor(task.status)
                     )
                 )
@@ -354,15 +383,20 @@ fun TaskCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTaskBottomSheet(
+fun TaskBottomSheet(
     isVisible: Boolean,
+    task: ToDoTask?,
     onDismiss: () -> Unit,
     onSave: (ToDoTask) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val taskTitle = remember { mutableStateOf("") }
-    val taskDescription = remember { mutableStateOf("") }
-    val selectedPriority = remember { mutableStateOf(Priority.NONE) }
+    // Determine if we're editing or adding
+    val isEditing = task != null
+
+    // Initialize state with values from task if editing, or empty if adding
+    val taskTitle = remember(task) { mutableStateOf(task?.title ?: "") }
+    val taskDescription = remember(task) { mutableStateOf(task?.description ?: "") }
+    val selectedPriority = remember(task) { mutableStateOf(task?.priority ?: Priority.NONE) }
 
     if (isVisible) {
         ModalBottomSheet(
@@ -377,7 +411,7 @@ fun AddTaskBottomSheet(
                     .padding(bottom = 32.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.add_new_task),
+                    text = stringResource(if (isEditing) R.string.edit_task else R.string.add_new_task),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -443,14 +477,7 @@ fun AddTaskBottomSheet(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
-                        onClick = {
-                            taskTitle.value = ""
-                            taskDescription.value = ""
-                            selectedPriority.value = Priority.NONE
-                            onDismiss()
-                        }
-                    ) {
+                    TextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.cancel))
                     }
 
@@ -459,22 +486,26 @@ fun AddTaskBottomSheet(
                     Button(
                         onClick = {
                             if (taskTitle.value.isNotBlank()) {
-                                // Create new task and save
-                                val newTask = ToDoTask(
-                                    id = 0,
-                                    title = taskTitle.value,
-                                    description = taskDescription.value,
-                                    addedDate = LocalDate.now(),
-                                    status = TaskStatus.UNDONE,
-                                    priority = selectedPriority.value
-                                )
-                                onSave(newTask)
-
-                                // Reset form
-                                taskTitle.value = ""
-                                taskDescription.value = ""
-                                selectedPriority.value = Priority.NONE
-                                onDismiss()
+                                // Create or update task and save
+                                val updatedTask = if (isEditing) {
+                                    // Keep original ID and date when editing
+                                    task!!.copy(
+                                        title = taskTitle.value,
+                                        description = taskDescription.value,
+                                        priority = selectedPriority.value
+                                    )
+                                } else {
+                                    // Create new task when adding
+                                    ToDoTask(
+                                        id = 0, // ID will be assigned by the database
+                                        title = taskTitle.value,
+                                        description = taskDescription.value,
+                                        addedDate = LocalDate.now(),
+                                        status = TaskStatus.UNDONE,
+                                        priority = selectedPriority.value
+                                    )
+                                }
+                                onSave(updatedTask)
                             }
                         },
                         enabled = taskTitle.value.isNotBlank()
@@ -567,16 +598,20 @@ fun HomeScreenPreview() {
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-fun PreviewAddTaskBottomSheet(
-    isVisible: Boolean = true,
-    onDismiss: () -> Unit = {},
-    onSave: (ToDoTask) -> Unit = {}
-) {
+fun PreviewTaskBottomSheet() {
     TodoListTheme {
-        AddTaskBottomSheet(
+        TaskBottomSheet(
             isVisible = true,
-            onDismiss = onDismiss,
-            onSave = onSave
+            task = ToDoTask(
+                id = 1,
+                title = "Finish project presentation",
+                description = "Complete slides and prepare talking points",
+                addedDate = LocalDate.now(),
+                status = TaskStatus.DOING,
+                priority = Priority.HIGH
+            ),
+            onDismiss = {},
+            onSave = {}
         )
     }
 }

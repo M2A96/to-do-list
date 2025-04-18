@@ -18,4 +18,18 @@ class ToDoDtaMapper  @Inject constructor()  {
             PriorityDto.NONE -> Priority.NONE
         }
     )
+
+    fun toDto(domain: ToDoTask) = ToDoTaskDto(
+        id = domain.id,
+        title = domain.title,
+        description = domain.description,
+        priority = when (domain.priority) {
+            Priority.HIGH -> PriorityDto.HIGH
+            Priority.LOW -> PriorityDto.LOW
+            Priority.MEDIUM -> PriorityDto.MEDIUM
+            Priority.NONE -> PriorityDto.NONE
+        },
+        createdAt = System.currentTimeMillis(),
+        updatedAt = System.currentTimeMillis(),
+    )
 }

@@ -1,13 +1,9 @@
 package com.example.snapfood.core.di.module
 
-import com.example.snapfood.data.repository.AllCharactersRepositoryImpl
-import com.example.snapfood.data.repository.CharacterRepositoryImpl
-import com.example.snapfood.data.repository.FilmRepositoryImpl
-import com.example.snapfood.data.repository.SpeciesRepositoryImpl
-import com.example.snapfood.domain.repository.AllCharactersRepository
-import com.example.snapfood.domain.repository.CharacterRepository
-import com.example.snapfood.domain.repository.FilmRepository
-import com.example.snapfood.domain.repository.SpeciesRepository
+import com.example.snapfood.data.repository.AllToDoTasksRepositoryImpl
+import com.example.snapfood.data.repository.TaskRepositoryImpl
+import com.example.snapfood.domain.repository.AllTasksRepository
+import com.example.snapfood.domain.repository.TaskRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,26 +16,13 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindCharacterRepository(
-        characterRepositoryImpl: CharacterRepositoryImpl
-    ): CharacterRepository
-
-
-    @Binds
-    @Singleton
-    abstract fun bindFilmRepository(
-        filmRepositoryImpl: FilmRepositoryImpl
-    ): FilmRepository
+    abstract fun bindAllTasksRepository(
+        allTasksRepositoryImpl: AllToDoTasksRepositoryImpl
+    ): AllTasksRepository
 
     @Binds
     @Singleton
-    abstract fun bindSpeciesRepository(
-        speciesRepositoryImpl: SpeciesRepositoryImpl
-    ): SpeciesRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindAllCharactersRepository(
-        allCharactersRepositoryImpl: AllCharactersRepositoryImpl
-    ): AllCharactersRepository
+    abstract fun bindTasksRepository(
+        tasksRepository: TaskRepositoryImpl
+    ): TaskRepository
 }

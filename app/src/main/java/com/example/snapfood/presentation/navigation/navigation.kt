@@ -5,42 +5,22 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.example.snapfood.presentation.ui.details.DetailsScreen
 
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.snapfood.presentation.ui.details.DetailsViewModel
-import com.example.snapfood.presentation.ui.home.SearchViewModel
+import com.example.snapfood.presentation.ui.home.HomeViewModel
+import com.example.todolist.presentation.ui.home.HomeScreen
 
 sealed class Screen(val route: String) {
-    data object Search : Screen("search")
-    data object Details : Screen("details/{characterId}") {
-        fun createRoute(characterId: String) = "details/$characterId"
-    }
+    data object Home : Screen("home")
 }
 
 fun NavGraphBuilder.starWarsNavGraph(navController: NavHostController) {
-//    composable(route = Screen.Search.route) {
-//        val viewModel: SearchViewModel = hiltViewModel()
-//        val state by viewModel.state.collectAsState()
-//        SearchScreen(
-//            state = state,
-//            onEvent = viewModel::onEvent,
-//            onNavigateToDetails = { characterId ->
-//                navController.navigate(Screen.Details.createRoute(characterId))
-//            }
-//        )
-//    }
-
-    composable(
-        route = Screen.Details.route,
-    ) {
-        val viewModel: DetailsViewModel = hiltViewModel()
+    composable(route = Screen.Home.route) {
+        val viewModel: HomeViewModel = hiltViewModel()
         val state by viewModel.state.collectAsState()
-        DetailsScreen(
+        HomeScreen (
             state = state,
-            onBackClick = {
-                navController.popBackStack()
-            }
+            onEvent = viewModel::onEvent,
         )
     }
 }

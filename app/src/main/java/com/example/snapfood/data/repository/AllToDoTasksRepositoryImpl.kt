@@ -1,11 +1,14 @@
 package com.example.snapfood.data.repository
 
+import android.util.Log
+import com.example.snapfood.data.api.TasksApi
 import com.example.snapfood.data.dao.ToDoDao
 import com.example.snapfood.data.mapper.ToDoDtaMapper
 import com.example.snapfood.domain.model.Resources
 import com.example.snapfood.domain.model.ToDoTask
 import com.example.snapfood.domain.repository.AllTasksRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -18,15 +21,15 @@ class AllToDoTasksRepositoryImpl @Inject constructor(
         return flow {
             emit(Resources.Loading(true))
             try {
-                val response = dao.getAllTasks()
-                val toDoTasks = response
-                    .map {
-                    mapper.toDomain(it)
-                    }
-                emit(Resources.Success(toDoTasks))
-                emit(Resources.Loading(false))
+                // Always read from local DB first (offline-first)
+               dao.getAllTasks().collect { taskDtos ->
+                   val tasks = taskDtos.map { dto -> mapper.toDomain(dto) }
+                   emit(Resources.Success(tasks))
+               }
             } catch (e: Exception) {
-                emit(Resources.Error("Could not load characters"))
+                Log.e("AllToDoTasksRepositoryImpl", "Error getting tasks from database", e)
+                emit(Resources.Error(e.localizedMessage ?: "Failed to load tasks"))
+            } finally {
                 emit(Resources.Loading(false))
             }
         }

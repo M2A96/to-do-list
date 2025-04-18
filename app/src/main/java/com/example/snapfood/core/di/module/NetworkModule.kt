@@ -2,7 +2,8 @@ package com.example.snapfood.core.di.module
 
 import com.example.snapfood.core.di.qualifier.WithToken
 import com.example.snapfood.core.di.qualifier.WithoutToken
-import com.example.snapfood.data.api.StarWarsApi
+import com.example.snapfood.data.api.MockTaskApiService
+import com.example.snapfood.data.api.TasksApi
 import com.example.snapfood.util.SecretFields
 import com.facebook.stetho.okhttp3.BuildConfig
 import com.facebook.stetho.okhttp3.StethoInterceptor
@@ -197,7 +198,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideConcreteStarWarsApi(@WithoutToken retrofit: Retrofit): StarWarsApi {
-        return retrofit.create(StarWarsApi::class.java)
+    fun provideTasksApi(@WithoutToken retrofit: Retrofit): TasksApi {
+        // Create and pre-populate the mock service
+        return MockTaskApiService().apply {
+            prepopulateWithSampleData()
+        }
     }
 }
